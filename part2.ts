@@ -35,7 +35,22 @@ export function makeTableService<T>(sync: (table?: Table<T>) => Promise<Table<T>
                 })
         },
         delete(key: string): Promise<void> {
-            return Promise.reject('not implemented')
+            return new Promise((resolve,reject) => { sync()
+                .then(table => { 
+                    if(table[key] === undefined){
+                          reject(MISSING_KEY)
+                    }
+                    else{ 
+                        let newTable : Record<string,T> = table;
+                        delete newTable[key]
+                        sync(newTable)
+                        resolve()
+                    }
+                })
+                .catch(() =>
+                    { reject(MISSING_KEY)})})
+             
+            
         }
     }
 }
