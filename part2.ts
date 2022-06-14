@@ -80,8 +80,19 @@ export function isReference<T>(obj: T | Reference): obj is Reference {
 }
 
 export async function constructObjectFromTables(tables: TableServiceTable, ref: Reference) {
+     
     async function deref(ref: Reference) {
-        return Promise.reject('not implemented')
+        try{
+            let table = tables[ref.table]
+            let obj :Record<string, any> = await table.get(ref.key)
+            for (const [key, value] of Object.entries(obj)){
+                isReference(value) ? obj[key] = await deref(value) : value
+            }
+          return obj
+        }
+        catch{
+            return Promise.reject(MISSING_TABLE_SERVICE)
+        }
     }
 
     return deref(ref)
