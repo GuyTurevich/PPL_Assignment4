@@ -57,7 +57,16 @@ export function makeTableService<T>(sync: (table?: Table<T>) => Promise<Table<T>
 
 // Q 2.1 (b)
 export function getAll<T>(store: TableService<T>, keys: string[]): Promise<T[]> {
-    return Promise.reject('not implemented')
+    return new Promise<T[]>((resolve, reject) => {
+        let promiseList : Promise<T>[] = []
+        for(let i = 0 ; i < keys.length ; i++){
+            promiseList.push(store.get(keys[i]))
+        }
+        Promise.all(promiseList).then(value =>{
+            resolve(value)
+        })
+        .catch(() => reject(MISSING_KEY))
+    })
 }
 
 
